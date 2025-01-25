@@ -1,15 +1,15 @@
 import axios from "axios";
 
-export const getSearchMovie = async () => {
+export const getSearchMovie = async (page: number, search: string) => {
   const key = process.env.NEXT_PUBLIC_API_KEY;
   const options = {
     method: "GET",
     url: "https://api.themoviedb.org/3/search/movie",
     params: {
-      query: "interstellar",
+      query: search,
       include_adult: "false",
       language: "en-US",
-      page: "1",
+      page: page,
     },
     headers: {
       accept: "application/json",

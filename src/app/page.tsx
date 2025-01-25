@@ -1,28 +1,38 @@
 "use client";
-import { MoviesList } from "@/components/MoviesList";
+import { MoviesList } from "@/components/movie/MoviesList";
+import { SearchInput } from "@/components/SearchInput";
+import { getSearchMovie } from "@/services/getSearchMovie";
 import { getTopRatedMovies } from "@/services/getTopRatedMovies";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [topRatedMovies, setTopRatedMovies] = useState(null);
+  const [moviesList, setMoviesList] = useState(null);
 
   const page = useSearchParams().get("page");
+  const search = useSearchParams().get("search");
+  console.log(search);
 
   useEffect(() => {
-    const fetchTopRatedMovies = async (page: any) => {
-      const movies = await getTopRatedMovies(page);
-      setTopRatedMovies(movies);
+    const fetchMovies = async (page: any) => {
+      if (!search) {
+        const moviesList = await getTopRatedMovies(page);
+        setMoviesList(moviesList);
+      } else {
+        const moviesList = await getSearchMovie(page, search);
+        setMoviesList(moviesList);
+      }
     };
 
-    fetchTopRatedMovies(page);
-  }, [page]);
+    fetchMovies(page);
+  }, [page, search]);
 
-  if (!topRatedMovies) return <p>Loading...</p>;
+  if (!moviesList) return <p>Loading...</p>;
 
   return (
-    <main className="w-full h-full flex flex-col items-center justify-center">
-      <MoviesList topRatedMovies={topRatedMovies} />
+    <main className="w-full h-full flex flex-col  justify-center p-4 md:p-10">
+      <SearchInput />
+      <MoviesList moviesList={moviesList} />
     </main>
   );
 }

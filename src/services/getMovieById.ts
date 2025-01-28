@@ -1,5 +1,5 @@
 import { API_KEY } from "@/constants";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 export const getMovieById = async (id: number) => {
   try {
@@ -15,8 +15,8 @@ export const getMovieById = async (id: number) => {
 
     const { data: movieID } = await axios.request(options);
     return movieID;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
+  } catch (error: AxiosError | unknown) {
+    if (error instanceof AxiosError && error.response?.status === 404) {
       throw new Error("NOT_FOUND");
     }
     throw error;

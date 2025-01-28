@@ -1,7 +1,7 @@
 "use client";
 import { useLikesStorage } from "@/store/likesStore";
 import { Card, CardBody, CardHeader } from "@heroui/react";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LikeButton } from "../LikeButton";
 import Link from "next/link";
 import Image from "next/image";

@@ -32,8 +32,8 @@ const page = async ({ params }: { params: Params }) => {
         <MovieDetail movie={movie} videos={videos} />
       </div>
     );
-  } catch (error: any) {
-    if (error.message === "NOT_FOUND") {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "NOT_FOUND") {
       notFound();
     }
     throw error;

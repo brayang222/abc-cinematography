@@ -1,39 +1,53 @@
+"use client";
+
 import { Input } from "@heroui/react";
-import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
+import { useDebounce } from "use-debounce";
 
-export const SearchInput = () => {
-  const [inputValue, setInputValue] = useState("");
+interface SearchInputProps {
+  defaultValue?: string;
+}
 
+export const SearchInput = ({ defaultValue = "" }: SearchInputProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const [value, setValue] = useState(defaultValue);
+  const [debouncedValue] = useDebounce(value, 500);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
+  const updateSearchParams = useCallback(
+    (newValue: string) => {
+      const searchParams = new URLSearchParams(window.location.search);
 
-  const handleInputEmpty = () => {
-    setInputValue("");
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("search");
-    router.push(`?${params.toString()}`);
-  };
+      if (newValue) {
+        searchParams.set("search", newValue);
+      } else {
+        searchParams.delete("search");
+      }
+
+      router.replace(`?${searchParams.toString()}`, {
+        scroll: false,
+      });
+    },
+    [router]
+  );
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (inputValue) {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("search", inputValue);
-        router.push(`?${params.toString()}`);
-      }
-    }, 500);
-    return () => clearTimeout(timeout);
-  }, [inputValue]);
+    updateSearchParams(debouncedValue);
+  }, [debouncedValue, updateSearchParams]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
+
+  const handleClear = () => {
+    setValue("");
+    updateSearchParams("");
+  };
 
   return (
     <Input
       isClearable={true}
-      className="max-w-[500px] w-full "
+      className="w-full max-w-lg"
       classNames={{
         label: "text-black/50 dark:text-white/90",
         input: [
@@ -43,16 +57,7 @@ export const SearchInput = () => {
         ],
         innerWrapper: "bg-transparent",
         inputWrapper: [
-          "shadow-xl",
-          "bg-default-200/50",
-          "dark:bg-default/60",
-          "backdrop-blur-xl",
-          "backdrop-saturate-200",
-          "hover:bg-default-200/70",
-          "dark:hover:bg-default/70",
-          "group-data-[focus=true]:bg-default-200/50",
-          "dark:group-data-[focus=true]:bg-default/60",
-          "!cursor-text",
+          "shadow-xl bg-default-200/50 dark:bg-default/60 backdrop-blur-xl backdrop-saturate-200 hover:bg-default-200/70 dark:hover:bg-default/70 group-data-[focus=true]:bg-default-200/50 dark:group-data-[focus=true]:bg-default/60 !cursor-text",
         ],
       }}
       placeholder="Buscar una película..."
@@ -60,9 +65,9 @@ export const SearchInput = () => {
       startContent={
         <i className="icon-[tabler--search]" role="img" aria-hidden="true" />
       }
-      value={inputValue}
+      value={value}
       onChange={handleInputChange}
-      onClear={handleInputEmpty}
+      onClear={handleClear}
     />
   );
 };

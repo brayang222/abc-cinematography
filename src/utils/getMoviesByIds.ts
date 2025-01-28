@@ -2,7 +2,7 @@ import { getMovieById } from "@/services/getMovieById";
 
 export const getMoviesByIds = async (likeIds: number[]) => {
   try {
-    let likedMovies = [];
+    const likedMovies = [];
     for (const id of likeIds) {
       const movie = await getMovieById(id);
       likedMovies.push(movie);

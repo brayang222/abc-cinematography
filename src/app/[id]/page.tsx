@@ -1,28 +1,43 @@
 import { MovieDetail } from "@/components/movie/MovieDetail";
 import { getMovieById } from "@/services/getMovieById";
+import { getMovieVideos } from "@/services/getMovieTrailer";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({
   params,
 }: {
-  params: { id: number };
+  params: Promise<{ id: number }>;
 }): Promise<Metadata> {
-  const movie = await getMovieById(params.id);
+  const { id } = await params;
+  const movie = await getMovieById(id);
   return {
     title: movie.title || "ABC CINEMATOGRAPHY",
     description: movie.overview || "abc colombian cinematography",
   };
 }
 
-const page = async ({ params }: { params: { id: number } }) => {
-  const id = params.id;
-  const movie = await getMovieById(id);
-  console.log(movie);
-  return (
-    <div>
-      <MovieDetail movie={movie} />
-    </div>
-  );
+type Params = Promise<{ id: number }>;
+
+const page = async ({ params }: { params: Params }) => {
+  try {
+    const { id } = await params;
+    const [movie, videos] = await Promise.all([
+      getMovieById(id),
+      getMovieVideos(id),
+    ]);
+
+    return (
+      <div>
+        <MovieDetail movie={movie} videos={videos} />
+      </div>
+    );
+  } catch (error: any) {
+    if (error.message === "NOT_FOUND") {
+      notFound();
+    }
+    throw error;
+  }
 };
 
 export default page;

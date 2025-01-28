@@ -1,10 +1,16 @@
 "use client";
 import Image from "next/image";
-import React from "react";
 import { LikeButton } from "../LikeButton";
+import { BASE_URL } from "@/constants";
+import { Company, Genre, Movie, Video, Videos } from "@/types/movies";
 
-export const MovieDetail = ({ movie }: any) => {
-  const baseURL = "https://image.tmdb.org/t/p/original";
+export const MovieDetail = ({
+  movie,
+  videos,
+}: {
+  movie: Movie;
+  videos: Videos;
+}) => {
   const {
     title,
     poster_path,
@@ -16,16 +22,9 @@ export const MovieDetail = ({ movie }: any) => {
     production_companies,
   } = movie;
 
-  interface Genre {
-    id: number;
-    name: string;
-  }
-
-  interface Companie {
-    id: number;
-    name: string;
-    logo_path: string;
-  }
+  const { results } = videos;
+  const trailer =
+    results?.find((video: Video) => video.type === "Trailer")?.key || null;
 
   return (
     <div className="flex flex-col gap-4 p-4 md:gap-12 md:p-12 min-w-screen min-h-screen">
@@ -34,7 +33,7 @@ export const MovieDetail = ({ movie }: any) => {
         <div className="flex flex-col gap-4 w-full max-w-[500px] relative">
           <LikeButton id={movie.id} />
           <Image
-            src={`${baseURL}${poster_path}`}
+            src={`${BASE_URL}${poster_path}`}
             alt={original_title}
             width={700}
             height={500}
@@ -47,45 +46,66 @@ export const MovieDetail = ({ movie }: any) => {
             <p>⭐ {vote_average.toFixed(1)}</p>
           </div>
           <div className="flex gap-4 text-gray-400">
-            <h3>Géneros:</h3>
-            {genres ? (
-              genres.map((genre: Genre) => (
-                <p className="underline" key={genre.id}>
-                  {genre.name}
-                </p>
-              ))
+            {genres && genres.length > 0 ? (
+              <>
+                <h3>Géneros:</h3>
+                {genres.map((genre: Genre) => (
+                  <p className="underline" key={genre.id}>
+                    {genre.name}
+                  </p>
+                ))}
+              </>
             ) : (
               <p>No tiene géneros asociados</p>
             )}
           </div>
           <div className="flex flex-col gap-4">
-            <h3 className="text-gray-400">Descripción:</h3>
-            <p className="max-w-readable">{overview}</p>
+            {overview ? (
+              <>
+                <h3 className="text-gray-400">Descripción:</h3>
+                <p className="max-w-readable">{overview}</p>
+              </>
+            ) : (
+              <p>No tiene descripción</p>
+            )}
           </div>
           <section className="flex flex-col gap-4">
-            <h3 className="text-gray-400">Compañías:</h3>
-            {production_companies ? (
-              production_companies.map((companie: Companie) => (
-                <div
-                  className="flex items-center gap-4 p-4 border rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-300"
-                  key={companie.id}
-                >
-                  {companie.logo_path && (
-                    <img
-                      src={baseURL + companie.logo_path}
-                      alt={`${companie.name} Logo`}
-                      className="w-14 h-14 object-contain"
-                    />
-                  )}
-                  <p className="text-lg font-semibold text-gray-700">
-                    {companie.name}
-                  </p>
-                </div>
-              ))
+            {production_companies && production_companies.length > 0 ? (
+              <>
+                <h3 className="text-gray-400">Compañías:</h3>
+                {production_companies.map((company: Company) => (
+                  <div
+                    className="flex items-center gap-4 p-4 border rounded-lg bg-gray-100 hover:bg-gray-200 transition duration-300"
+                    key={company.id}
+                  >
+                    {company.logo_path && (
+                      <Image
+                        src={BASE_URL + company.logo_path}
+                        alt={`${company.name} Logo`}
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                      />
+                    )}
+                    <p className="text-lg font-semibold text-gray-700">
+                      {company.name}
+                    </p>
+                  </div>
+                ))}
+              </>
             ) : (
               <p>Sin compañías </p>
             )}
           </section>
+          {trailer && (
+            <iframe
+              src={`https://www.youtube.com/embed/${trailer}`}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-72 rounded-xl shadow-md"
+            ></iframe>
+          )}
         </section>
       </div>
     </div>

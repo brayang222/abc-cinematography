@@ -1,29 +1,36 @@
 "use client";
-import { getMovieById } from "@/services/getMovieById";
 import { useLikesStorage } from "@/store/likesStore";
 import { Card, CardBody, CardHeader } from "@heroui/react";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { LikeButton } from "../LikeButton";
 import Link from "next/link";
 import Image from "next/image";
 import { getMoviesByIds } from "@/utils/getMoviesByIds";
 import { toast } from "sonner";
+import { BASE_URL } from "@/constants";
+import { Movie } from "@/types/movies";
+import { MoviesSkeleton } from "../skeletons/MoviesSkeleton";
 
 export const LikedMovies = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { likeIds } = useLikesStorage();
 
-  const baseURL = "https://image.tmdb.org/t/p/w500";
-
   useEffect(() => {
+    setIsLoading(true);
     getMoviesByIds(likeIds)
       .then((movies) => setMovies(movies))
-      .catch((error) => toast.error(error.message));
+      .catch((error) => toast.error(error.message))
+      .finally(() => setIsLoading(false));
   }, [likeIds]);
+
+  if (isLoading) {
+    return <MoviesSkeleton />;
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {movies.length > 0 ? (
+      {movies ? (
         movies?.map((movie) => (
           <Card
             className="bg-transparent overflow-hidden max-w-[500px]"
@@ -34,7 +41,7 @@ export const LikedMovies = () => {
               <CardHeader>
                 <Image
                   alt={`${movie.title} Poster`}
-                  src={baseURL + movie.poster_path}
+                  src={BASE_URL + movie.poster_path}
                   width={500}
                   height={700}
                   className=" w-full object-cover"

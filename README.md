@@ -1,6 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Prerequisitos
 
-## Getting Started
+- [Bun](https://bun.sh/) (Recomendado)
+- Node.js 21+ (Si no usas Bun)
+
+1. **Clona el repositorio**
+
+   ```bash
+   git clone https://github.com/brayang222/abc-cinematography.git
+   cd ABC
+   ```
+
+2. **Configurar el Entorno**
+
+   ```bash
+   # copia el template env
+   cp .env.template .env
+   ```
+
+3. **Instalar Dependencias**
+
+   ```bash
+   # Using Bun (Recomendado)
+   bun install
+
+   # Or using npm
+   npm install
+   ```
+
+4. **Iniciar el Servidor de Desarrollo**
+
+   ```bash
+   # Usando Bun
+   bun dev
+
+   # O usando npm
+   npm run dev
+   ```
 
 Puedes utilizar cualquier empaquetador, you utilicé bun:
 
